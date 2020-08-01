@@ -1,11 +1,13 @@
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, CreateAPIView, \
     RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from photos.api.v1.serializers import PostCreateSerializer, PostListSerializer, \
-    PostDetailUpdateSerializer
+from photos.api.v1.serializers import PostDetailUpdateSerializer, \
+    PostListCreateSerializer
+from photos.helpers import validate_ids
 from photos.models import Post
 
 EARLIEST_PUBLISHED_DATE_SORT = 'ASC'
@@ -14,21 +16,22 @@ EARLIEST_PUBLISHED_DATE_SORT = 'ASC'
 class PostCreateAPIView(CreateAPIView):
     """
     """
-    serializer_class = PostCreateSerializer
+    serializer_class = PostListCreateSerializer
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(owner=self.request.user)
-            return Response(status=status.HTTP_201_CREATED)
+    def create(self, request, *args, **kwargs):
+        many = True if isinstance(request.data, list) else False
+        serializer = self.get_serializer(data=request.data, many=many)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class PostListAPIView(ListAPIView):
     """
     """
     model = Post
-    serializer_class = PostListSerializer
+    serializer_class = PostListCreateSerializer
 
     def get_queryset(self):
         queryset = self.model.objects.all()
@@ -61,10 +64,33 @@ class PostUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         return self.model.objects.filter(owner=self.request.user,
                                          id=self.kwargs.get('pk'))
 
+
+class PostBulKUpdateDeleteAPIVIew(RetrieveUpdateDestroyAPIView):
+    """
+    """
+    model = Post
+    serializer_class = PostDetailUpdateSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self, ids=None):
+        queryset = self.model.objects.filter(owner=self.request.user)
+        if ids:
+            queryset = queryset.filter(id__in=ids)
+        return queryset
+
     def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.serializer_class(instance, data=request.data,
-                                           partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
+        ids = validate_ids(request.data)
+        instances = self.get_queryset(ids=ids)
+        serializer = self.get_serializer(
+            instances, data=request.data, partial=True, many=True
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def delete(self, request, *args, **kwargs):
+        ids = request.data.get('ids')
+        instances = self.get_queryset(ids=ids)
+        for instance in instances:
+            self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)

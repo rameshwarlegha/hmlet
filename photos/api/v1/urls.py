@@ -5,10 +5,10 @@ from .views import (
     PostUpdateDestroyAPIView, PostBulKUpdateDeleteAPIVIew)
 
 urlpatterns = [
-    path('create/', PostCreateAPIView.as_view(), name='post-create'),
-    path('', PostListAPIView.as_view(), name='post-list'),
+    path('create/', PostCreateAPIView.as_view(), name='post_create'),
+    path('', PostListAPIView.as_view(), name='post_list'),
     path('<int:pk>/', PostUpdateDestroyAPIView.as_view(),
-         name='post-update-delete'),
+         name='post_update_delete'),
     path('bulk-update-delete/', PostBulKUpdateDeleteAPIVIew.as_view(),
-         name='post-bulk-update-delete')
+         name='post_bulk_update_delete')
 ]

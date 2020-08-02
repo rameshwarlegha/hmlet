@@ -1,5 +1,4 @@
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, CreateAPIView, \
     RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -35,7 +34,6 @@ class PostListAPIView(ListAPIView):
 
     def get_queryset(self):
         queryset = self.model.objects.all()
-
         user = self.request.user
         if user.is_authenticated:
             queryset = queryset.filter(owner=user)

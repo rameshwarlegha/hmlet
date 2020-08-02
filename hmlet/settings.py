@@ -129,6 +129,19 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer', 'Token')
 }
 
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+      }
+   }
+}
+REDOC_SETTINGS = {
+   'LAZY_RENDERING': False,
+}
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
@@ -139,8 +152,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-AWS_STORAGE_RESIZED_BUCKET_NAME = os.environ.get(
-    'AWS_STORAGE_RESIZED_BUCKET_NAME')
+AWS_STORAGE_RESIZED_BUCKET_NAME = os.environ.get('AWS_STORAGE_RESIZED_BUCKET_NAME')
 
 AWS_S3_FILE_OVERWRITE = False
 AWS_QUERYSTRING_AUTH = False

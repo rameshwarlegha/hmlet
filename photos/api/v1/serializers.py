@@ -10,6 +10,7 @@ class PostListCreateSerializer(ModelSerializer):
         model = Post
         fields = ('id', 'image', 'caption', 'is_draft', 'resized_image',
                   'published_at')
+        read_only_fields = ('published_at', 'resized_image', 'id')
 
     def create(self, validated_data):
         post = Post(image=validated_data['image'],

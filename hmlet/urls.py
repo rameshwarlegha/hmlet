@@ -23,7 +23,7 @@ schema_view = get_schema_view(
    openapi.Info(
       title="Hmlet API",
       default_version='v1',
-      description="Hmlet Photos Post API",
+      description="Hmlet Post Photos API",
       terms_of_service="https://www.google.com/policies/terms/",
       contact=openapi.Contact(email="rameshwar.legha7@gmail.com"),
       license=openapi.License(name="BSD License"),
